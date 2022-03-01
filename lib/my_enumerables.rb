@@ -1,26 +1,12 @@
 module Enumerable
   # --------------------------------------------------------------------------------
-  # My implementation of Array.each method.
-  # Calls the given block once for each element in self,
-  # passing that element as a parameter. Returns the array itself.
-  def my_each(&block)
-    if block_given?
-      for i in self
-        block.call(i)
-      end
-    else
-      return 'No block given'
-    end
-  end
-
-  # --------------------------------------------------------------------------------
   # My implementation of Array.each_with_index method.
   # Calls block with two arguments, the item and its index, for each item in enum.
   # Given arguments are passed through to each().
   def my_each_with_index(&block)
     if block_given?
       index = -1
-      for i in self
+      my_each do |i|
         block.call(i, index+=1)
       end
     else
@@ -35,7 +21,7 @@ module Enumerable
   def my_select(&block)
     array = []
     if block_given?
-      for i in self
+      my_each do |i|
         array << i if block.call(i)
       end
     else
@@ -51,7 +37,7 @@ module Enumerable
   def my_all?(*arg, &block)
     false_count = 0
     if block_given?
-      for i in self
+      my_each do |i|
         unless block.call(i)
           false_count += 1
         end
@@ -60,7 +46,7 @@ module Enumerable
 
     # When block isn't given and an argument is passed in, use argument as the parameter.
     elsif !block_given? && arg[0]
-      for i in self
+      my_each do |i|
         unless arg[0] === i
           false_count += 1
         end
@@ -69,7 +55,7 @@ module Enumerable
 
     # When block isn't given, creates an implicit block of { |obj| obj }.
     elsif !block_given?
-      for i in self
+      my_each do |i|
         if i == nil || i == false
           false_count += 1
         end
@@ -85,7 +71,7 @@ module Enumerable
   def my_any?(*arg, &block)
     true_count = 0
     if block_given?
-      for i in self
+      my_each do |i|
         if block.call(i)
           true_count += 1
         end
@@ -94,7 +80,7 @@ module Enumerable
 
     # When block isn't given and an argument is passed in, use argument as the parameter.
     elsif !block_given? && arg[0]
-      for i in self
+      my_each do |i|
         if arg[0] === i
           true_count += 1
         end
@@ -103,7 +89,7 @@ module Enumerable
 
     # When block isn't given, creates an implicit block of { |obj| obj }.
     elsif !block_given?
-      for i in self
+      my_each do |i|
         unless i == nil || i == false
           true_count += 1
         end
@@ -119,7 +105,7 @@ module Enumerable
   def my_none?(*arg, &block)
     true_count = 0
     if block_given?
-      for i in self
+      my_each do |i|
         if block.call(i)
           true_count += 1
         end
@@ -128,7 +114,7 @@ module Enumerable
 
     # When block isn't given and an argument is passed in, use argument as the parameter.
     elsif !block_given? && arg[0]
-      for i in self
+      my_each do |i|
         if arg[0] === i
           true_count += 1
         end
@@ -137,7 +123,7 @@ module Enumerable
 
     # When block isn't given, creates an implicit block of { |obj| obj }.
     elsif !block_given?
-      for i in self
+      my_each do |i|
         unless i == nil || i == false
           true_count += 1
         end
@@ -154,7 +140,7 @@ module Enumerable
   def my_count(*arg, &block)
     true_count = 0
     if block_given?
-      for i in self
+      my_each do |i|
         if block.call(i)
           true_count += 1
         end
@@ -163,7 +149,7 @@ module Enumerable
 
     # If an argument is given, the number of items in enum that are equal to item are counted.
     elsif !block_given? && arg[0]
-      for i in self
+      my_each do |i|
         if arg[0] === i
           true_count += 1
         end
@@ -183,7 +169,7 @@ module Enumerable
   def my_map(*arg, &block)
     new_array = []
     if block_given?
-      for i in self
+      my_each do |i|
         new_array << block.call(i)
       end
       new_array
@@ -195,7 +181,27 @@ module Enumerable
   # --------------------------------------------------------------------------------
   # My implementation of Array.inject/reduce method.
   def my_inject(*arg, &block)
-
+    accumulator = 0
+    arg.length == 1 ? initial_value = arg[0] : initial_value = 0
+    if block_given?
+      accumulator += initial_value
+      my_each do |value|
+        accumulator = block.call(accumulator, value)
+      end
+    else
+      if arg.length > 1
+        symbol = arg[1]
+        accumulator = arg[0]
+      else
+        symbol = arg[0]
+        accumulator = 1
+      end
+      symbol == :+ ? my_each { |e| accumulator += e } : false
+      symbol == :- ? my_each { |e| accumulator -= e } : false
+      symbol == :* ? my_each { |e| accumulator *= e } : false
+      accumulator
+    end
+    accumulator
   end
 end
 
@@ -206,6 +212,16 @@ end
 # to this method
 class Array
   # Define my_each here
-  #### Instead I used the core of my_each in evey method in my Enumerable Module.
-  #### This made it longer but my understanable to me. That's why I didn't defined my_each here. 
+  # My implementation of Array.each method.
+  # Calls the given block once for each element in self,
+  # passing that element as a parameter. Returns the array itself.
+  def my_each(&block)
+    if block_given?
+      for i in self
+        block.call(i)
+      end
+    else
+      return 'No block given'
+    end
+  end 
 end
