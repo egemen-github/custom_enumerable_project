@@ -112,7 +112,7 @@ module Enumerable
       end
       true_count == 0 ? true : false
 
-    # When block isn't given and an argument is passed in, use argument as the parameter.
+    # When block isn't given and an argument is passed in, uses argument as the parameter.
     elsif !block_given? && arg[0]
       my_each do |i|
         if arg[0] === i
